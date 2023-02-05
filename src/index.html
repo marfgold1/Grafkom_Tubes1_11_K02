@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+    <title>Pemodelan Dasar</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="style.css">
+    
+    <script id="vertex-shader" type="x-shader/x-vertex"> 
+        attribute vec4 vPosition;
+        attribute vec4 vColor;
+
+        varying vec4 fColor;
+
+        void main() {
+            gl_Position = vPosition;
+            fColor = vColor;
+        }
+    </script>
+    
+    <script id="fragment-shader" type="x-shader/x-fragment">
+        varying lowp vec4 fColor;
+    
+        void main() {
+            gl_FragColor = fColor;
+        }
+    </script>
+    
+    <script src="utils.js" defer></script>
+    <script src="script.js" defer></script>
+</head>
+
+<body>
+    <h1>Pemodelan Dasar</h1>
+
+    <div class="canvas">
+        <canvas id="glcanvas" width="640px" height="480px"></canvas>
+    </div>
+</body>
+
+</html>
