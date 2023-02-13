@@ -34,6 +34,9 @@ class Color {
     toString() {
         return `rgba(${this.r}, ${this.g}, ${this.b}, ${this.a})`;
     }
+    toArray() {
+        return [this.r, this.g, this.b, this.a];
+    }
 
     /**
      * Color setter
@@ -110,5 +113,3 @@ class Color {
         return `#${(this.r*255).toString(16).padStart(2, '0')}${(this.g*255).toString(16).padStart(2, '0')}${(this.b*255).toString(16).padStart(2, '0')}`;
     }
 }
-
-export default Color;

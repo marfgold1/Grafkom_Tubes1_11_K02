@@ -47,9 +47,7 @@ window.onload = function init() {
     gl.vertexAttribPointer(programInfo.attribLocations.vertexColor, 4, gl.FLOAT, false, 0, 0);
     gl.enableVertexAttribArray(programInfo.attribLocations.vertexColor);
 
-    // For testing purpose
-    initObject();
-    initObject2();
+    objectList.push(new Square(new Point(-0.5, 0.5), new Point(0.5, -0.5)));
 
     function render() {
         // Reset canvas
@@ -69,73 +67,24 @@ function drawObject(gl) {
         const object = objectList[i];
 
         gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
-        gl.bufferSubData(gl.ARRAY_BUFFER, 8*vc, new Float32Array(object.positions));
+        gl.bufferSubData(gl.ARRAY_BUFFER, 8*vc, new Float32Array(object.getPositionArray()));
         gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
-        gl.bufferSubData(gl.ARRAY_BUFFER, 16*vc, new Float32Array(object.colors));
+        gl.bufferSubData(gl.ARRAY_BUFFER, 16*vc, new Float32Array(object.getColorArray()));
 
-        if (object.type === "square") {
+        if (object.getType() === "square") {
             gl.drawArrays(gl.TRIANGLE_FAN, vc, 4);
         }
 
-        vc += object.positions.length;
+        vc += object.getPoints().length * 2;
     }
-}
-
-// For testing purpose
-function initObject() {
-    var positions = [
-        -0.5, -0.5, 
-        0.5, -0.5, 
-        0.5, 0.5, 
-        -0.5, 0.5
-    ];
-
-    var colors = [
-        1.0, 0.0, 0.0, 1.0,
-        0.0, 1.0, 0.0, 1.0,
-        0.0, 0.0, 1.0, 1.0,
-        1.0, 0.0, 1.0, 1.0
-    ];
-
-    var object = {
-        type: "square",
-        positions: positions,
-        colors: colors
-    };
-
-    objectList.push(object);
-}
-
-function initObject2() {
-    var positions = [
-        0.7, 0.7, 
-        0.7, 0.8, 
-        0.8, 0.8,
-        0.8, 0.7 
-    ];
-
-    var colors = [
-        1.0, 0.0, 0.0, 1.0,
-        0.0, 1.0, 0.0, 1.0,
-        0.0, 0.0, 1.0, 1.0,
-        1.0, 0.0, 1.0, 1.0
-    ];
-
-    var object = {
-        type: "square",
-        positions: positions,
-        colors: colors
-    };
-
-    objectList.push(object);
 }
 
 /* --- Transformations --- */
 function translate(obj, x, y) {
-    positions = [];
-    for (let i = 0; i < obj.positions.length; i+=2) {
-        obj.positions[i] += +x;
-        obj.positions[i+1] += +y;
+    var points = obj.getPoints();
+    for (let i = 0; i < points.length; i++) {
+        points[i].setX(points[i].getX() + x);
+        points[i].setY(points[i].getY() + y);
     }
 }
 

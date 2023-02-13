@@ -1,9 +1,6 @@
 /**
  * Point Class for WebGL rendering
  */
-
-import Color from './Color';
-
 class Point {
 
     /**
@@ -23,7 +20,7 @@ class Point {
      * @param {number} x 
      * @param {number} y 
      */
-    constructor(x, y, color=Color(0,0,0,1)) {
+    constructor(x, y, color = new Color(0,0,0,1)) {
         this.#x = x;
         this.#y = y;
         this.#type = "point";
@@ -45,6 +42,9 @@ class Point {
     }
     getColor() {
         return this.#color;
+    }
+    toArray() {
+        return [this.#x, this.#y];
     }
 
     /**
@@ -80,5 +80,3 @@ class Point {
     }
 
 }
-
-export default Point;
