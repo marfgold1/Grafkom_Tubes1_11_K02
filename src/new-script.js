@@ -33,6 +33,8 @@ const curState = new Proxy({
                         col: point.color.hex,
                     });
                     inspector.show("point");
+                } else {
+                    inspector.hide("point");
                 }
                 hitboxHover.visible = false;
                 hitboxSelect.visible = true;
