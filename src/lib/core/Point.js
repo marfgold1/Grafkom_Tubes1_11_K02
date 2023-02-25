@@ -41,29 +41,12 @@ export default class Point extends Vector2 {
         this.onChange && this.onChange();
     }
 
-    get color() {
-        return this.#color;
+    get x() {
+        return super.x;
     }
 
-    /**
-     * @param {number} x
-     */
-    set x(x) {
-        super.x = x;
-        this.onChange && this.onChange();
-    }
-
-    /**
-     * @param {number} y
-     */
-    set y(y) {
-        super.y = y;
-        this.onChange && this.onChange();
-    }
-
-    set(x, y) {
-        super.set(x, y);
-        this.onChange && this.onChange();
+    get y() {
+        return super.y;
     }
 
     get color() {
