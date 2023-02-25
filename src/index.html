@@ -1,57 +1,200 @@
 <!DOCTYPE html>
-
 <html lang="en">
-
 <head>
     <title>Pemodelan Dasar</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="style.css">
     
-    <script id="vertex-shader" type="x-shader/x-vertex"> 
-        attribute vec4 vPosition;
-        attribute vec4 vColor;
-
-        varying vec4 fColor;
-
-        void main() {
-            gl_Position = vPosition;
-            fColor = vColor;
-        }
-    </script>
-    
-    <script id="fragment-shader" type="x-shader/x-fragment">
-        varying lowp vec4 fColor;
-    
-        void main() {
-            gl_FragColor = fColor;
-        }
-    </script>
-    
-    <script src="utils.js" defer></script>
-    <script src="lib/Color.js" defer></script>
-    <script src="lib/Point.js" defer></script>
-    <script src="lib/Square.js" defer></script>
-    <script src="script.js" defer></script>
+    <script type="module" src="./lib/DRW.js"></script>
+    <script src="new-script.js" defer></script>
 </head>
 
 <body>
-    <h1>Pemodelan Dasar</h1>
-
-    <div class = "tool">
-        <div class="canvas">
-            <canvas id="glcanvas" width="480px" height="480px"></canvas>
+    <div class="toolbar">
+        <div class="tool" id="tool-line">
+            <img src="./icons/" width="24" height="24" alt="line tool" />
         </div>
-        <div class="settings">
-            <p>Model yang dipilih:</p>
-            <select id="object-select">
-            </select>
-
-
+        <div class="tool" id="tool-square">
+            <img src="./icons/" width="24" height="24" alt="square tool" />
+        </div>
+        <div class="tool" id="tool-rect">
+            <img src="./icons/" width="24" height="24" alt="rect tool" />
+        </div>
+        <div class="tool" id="tool-polygon">
+            <img src="./icons/" width="24" height="24" alt="polygon tool" />
+        </div>
+        <div class="tool" id="tool-bucket">
+            <img src="./icons/" width="24" height="24" alt="bucket tool" />
         </div>
     </div>
-
-    
+    <div class="canvas">
+        <canvas id="glcanvas"></canvas>
+    </div>
+    <div class="inspector">
+        <div class="insp-sect" id="insp-helper">
+            <p id="insp-help">Draw polygon or select any object/point to inspect</p>
+        </div>
+        <div class="insp-sect" id="insp-draw-poly">
+            <table class="insp-items">
+                <thead>
+                    <tr>
+                        <th colspan="2">Draw Polygon</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><label for="insp-draw-poly-max">Vertex to Draw</label></td>
+                        <td>
+                            <input type="text" id="insp-draw-poly-max" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><label for="insp-draw-poly-count">Polygon Count</label></td>
+                        <td>
+                            <input type="text" id="insp-draw-poly-count" disabled />
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="insp-sect" id="insp-bucket">
+            <table class="insp-items">
+                <thead>
+                    <tr>
+                        <th colspan="4">Bucket</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td colspan="4">Color</td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <div class="insp-item-sect">
+                                <label for="insp-bucket-col-r">R</label>
+                                <input type="text" id="insp-bucket-col-r" />
+                            </div>
+                        </td>
+                        <td>
+                            <div class="insp-item-sect">
+                                <label for="insp-bucket-col-g">G</label>
+                                <input type="text" id="insp-bucket-col-g" />
+                            </div>
+                        </td>
+                        <td>
+                            <div class="insp-item-sect">
+                                <label for="insp-bucket-col-b">B</label>
+                                <input type="text" id="insp-bucket-col-b" />
+                            </div>
+                        </td>
+                        <td>
+                            <div class="insp-item-sect">
+                                <label for="insp-bucket-col-a">A</label>
+                                <input type="text" id="insp-bucket-col-a" />
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="insp-sect" id="insp-model">
+            <table class="insp-items">
+                <thead>
+                    <tr>
+                        <th colspan="2">Model</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td colspan="2">Position</td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <div class="insp-item-sect">
+                                <label for="insp-model-pos-x">X</label>
+                                <input type="text" id="insp-model-pos-x" />
+                            </div>
+                        </td>
+                        <td>
+                            <div class="insp-item-sect">
+                                <label for="insp-model-pos-y">Y</label>
+                                <input type="text" id="insp-model-pos-y" />
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><label for="insp-model-rot">Rotation Angle</label></td>
+                        <td>
+                            <input type="text" id="insp-model-rot" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><label for="insp-model-dilate">Dilate</label></td>
+                        <td>
+                            <input type="text" id="insp-model-dilate" />
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="insp-sect" id="insp-point">
+            <table class="insp-items">
+                <thead>
+                    <tr>
+                        <th colspan="4">Point</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td colspan="4">Position</td>
+                    </tr>
+                    <tr>
+                        <td colspan="2">
+                            <div class="insp-item-sect">
+                                <label for="insp-point-pos-x">X</label>
+                                <input type="text" id="insp-point-pos-x" />
+                            </div>
+                        </td>
+                        <td colspan="2">
+                            <div class="insp-item-sect">
+                                <label for="insp-point-pos-y">Y</label>
+                                <input type="text" id="insp-point-pos-y" />
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="4">Color</td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <div class="insp-item-sect">
+                                <label for="insp-point-col-r">R</label>
+                                <input type="text" id="insp-point-col-r" />
+                            </div>
+                        </td>
+                        <td>
+                            <div class="insp-item-sect">
+                                <label for="insp-point-col-g">G</label>
+                                <input type="text" id="insp-point-col-g" />
+                            </div>
+                        </td>
+                        <td>
+                            <div class="insp-item-sect">
+                                <label for="insp-point-col-b">B</label>
+                                <input type="text" id="insp-point-col-b" />
+                            </div>
+                        </td>
+                        <td>
+                            <div class="insp-item-sect">
+                                <label for="insp-point-col-a">A</label>
+                                <input type="text" id="insp-point-col-a" />
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
 </body>
-
 </html>

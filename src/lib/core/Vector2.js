@@ -53,8 +53,7 @@ export default class Vector2 {
     }
 
     copy(v) {
-        this.#x = v.x;
-        this.#y = v.y;
+        this.set(v.x, v.y);
         return this;
     }
 
@@ -74,5 +73,13 @@ export default class Vector2 {
             Math.abs(this.#x - v.x) < eps &&
             Math.abs(this.#y - v.y) < eps
         );
+    }
+
+    toJSON() {
+        return { x: this.#x, y: this.#y };
+    }
+
+    static fromJSON(obj) {
+        return new Vector2(obj.x, obj.y);
     }
 }

@@ -35,7 +35,6 @@ export default class EventDispatcher {
     dispatchEvent(event) {
         if (!(event.type in this.#listeners)) return;
         const listenersType = this.#listeners[event.type];
-        event.target = event.target || this;
         const listeners = listenersType.slice(0);
         for (let i = 0; i < listeners.length; i++) {
             listeners[i].call(this, event);

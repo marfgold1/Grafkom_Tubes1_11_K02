@@ -140,4 +140,12 @@ export default class Color {
     static black() {
         return new Color(0, 0, 0, 1);
     }
+
+    toJSON() {
+        return { r: this.r, g: this.g, b: this.b, a: this.a };
+    }
+
+    static fromJSON(obj) {
+        return new Color(obj.r, obj.g, obj.b, obj.a);
+    }
 }
