@@ -4,36 +4,35 @@
  * r: red, g: green, b: blue, a: alpha
  */
 
-class Color {
+export default class Color {
     /**
      * Color is coded in rgba with values between 0 and 1
      * r: red, g: green, b: blue, a: alpha
      */
-    constructor(r, g, b, a) {
-        this.r = r;
-        this.g = g;
-        this.b = b;
-        this.a = a;
-    }
+    /** @type {number} */
+    r
+    /** @type {number} */
+    g
+    /** @type {number} */
+    b
+    /** @type {number} */
+    a
 
     /**
-     * Color getter
+     * Create new instance of color.
+     * @param {number} r The red value
+     * @param {number} g The green value
+     * @param {number} b The blue value
+     * @param {number} a The alpha value
      */
-    getR() {
-        return this.r;
+    constructor(r, g, b, a) {
+        this.set(r,g,b,a);
     }
-    getG() {
-        return this.g;
-    }
-    getB() {
-        return this.b;
-    }
-    getA() {
-        return this.a;
-    }
+
     toString() {
         return `rgba(${this.r}, ${this.g}, ${this.b}, ${this.a})`;
     }
+
     toArray() {
         return [this.r, this.g, this.b, this.a];
     }
@@ -45,7 +44,7 @@ class Color {
      * @param {number} b The blue value
      * @param {number} a The alpha value
      */
-    set(r, g, b, a) {
+    set(r, g, b, a=1) {
         this.r = r;
         this.g = g;
         this.b = b;
@@ -64,8 +63,13 @@ class Color {
         this.a = a;
     }
 
+    copy(c) {
+        this.set(c.r, c.g, c.b, c.a);
+        return this;
+    }
+
     /**
-     * Color clone
+     * Create new instance of color from this instance.
      */
     clone() {
         return new Color(this.r, this.g, this.b, this.a);
@@ -81,35 +85,59 @@ class Color {
     /**
      * Get red value in 8-bit integer representation
      */
-    getRInt() {
+    get rInt() {
         return this.r*255;
     }
     
     /**
      * Get green value in 8-bit integer representation
      */
-    getGInt() {
+    get gInt() {
         return this.g*255;
     }
 
     /**
      * Get blue value in 8-bit integer representation
      */
-    getBInt() {
+    get bInt() {
         return this.b*255;
     }
 
     /**
      * Get alpha value in 8-bit integer representation
      */
-    getAInt() {
+    get aInt() {
         return this.a*255;
     }
 
     /**
      * Convert RGB to Hexadecimal representation
      */
-    toHex() {
-        return `#${(this.r*255).toString(16).padStart(2, '0')}${(this.g*255).toString(16).padStart(2, '0')}${(this.b*255).toString(16).padStart(2, '0')}`;
+    get hex() {
+        return `#\
+        ${(this.r*255).toString(16).padStart(2, '0')}\
+        ${(this.g*255).toString(16).padStart(2, '0')}\
+        ${(this.b*255).toString(16).padStart(2, '0')}\
+        `;
+    }
+
+    static red() {
+        return new Color(1, 0, 0, 1);
+    }
+
+    static green() {
+        return new Color(0, 1, 0, 1);
+    }
+
+    static blue() {
+        return new Color(0, 0, 1, 1);
+    }
+
+    static white() {
+        return new Color(1, 1, 1, 1);
+    }
+
+    static black() {
+        return new Color(0, 0, 0, 1);
     }
 }
