@@ -1,257 +1,147 @@
+import DrawEvent from "./lib/core/DrawEvent.js";
+
 const el = (v) => document.getElementById(v);
-const uiElems = {
-    tool: {
-        line: el("tool-line"),
-        square: el("tool-square"),
-        rect: el("tool-rect"),
-        polygon: el("tool-polygon"),
-        bucket: el("tool-bucket"),
-    },
-    inspector: {
-        helper: {
-            body: el("insp-helper"),
-        },
-        drawPoly: {
-            body: el("insp-draw-poly"),
-            maxVertex: el("insp-draw-poly-max"),
-            count: el("insp-draw-poly-count"),
-        },
-        bucket: {
-            body: el("insp-bucket"),
-            col: {
-                r: el("insp-bucket-col-r"),
-                g: el("insp-bucket-col-g"),
-                b: el("insp-bucket-col-b"),
-                a: el("insp-bucket-col-a"),
-            },
-        },
-        model: {
-            body: el("insp-model"),
-            pos: {
-                x: el("insp-model-pos-x"),
-                y: el("insp-model-pos-y"),
-            },
-            rot: el("insp-model-rot"),
-            dilate: el("insp-model-dilate"),
-        },
-        point: {
-            body: el("insp-point"),
-            pos: {
-                x: el("insp-point-pos-x"),
-                y: el("insp-point-pos-y"),
-            },
-            col: {
-                r: el("insp-point-col-r"),
-                g: el("insp-point-col-g"),
-                b: el("insp-point-col-b"),
-                a: el("insp-point-col-a"),
-            }
-        }
-    }
-};
-
-const curState = {
-    tool: "",
+const createModel = (model, pos) => {
+    toolbar.isUsing = true;
+    const point = new DRW.Point(pos.x, pos.y);
+    point.color.setHex(inspd.drawOpt.state.col);
+    return new DRW[model](point, point.clone());
+}
+const end = () => { curState.selected = undefined; toolbar.isUsing = false; }
+const onToggle = () => { insp.toggle("drawOpt"); }
+const updatePoint = (point, e) => { point.copyPos(e.position); }
+const curState = new Proxy({
+    /** @type {DrawEvent} */
     selected: undefined,
-    inspector: {},
-}
+    dragged: false,
+}, {
+    set(obj, prop, val) {
+        obj[prop] = val;
+        if (prop === "selected") {
+            if (val && !toolbar.selected) {
+                const model = val.drawable;
+                inspd.model.setState({
+                    pos: model.position,
+                    rot: model.rotAngle,
+                    dilate: model.dilate,
+                })
+                inspector.show("model");
+                if (val.point) {
+                    const point = val.point;
+                    inspd.point.setState({
+                        pos: {x: point.x, y: point.y},
+                        col: point.color.hex,
+                    });
+                    inspector.show("point");
+                }
+                hitboxHover.visible = false;
+                hitboxSelect.visible = true;
+                hitboxSelect.point.copyPos(val.point || val.center);
+            } else {
+                inspector.hide("model");
+                inspector.hide("point");
+                hitboxSelect.visible = false;
+            }
+        }
+        return true;
+    }
+});
 
-const useState = {
-    drawPoly: {
+
+const insp = new DRWI.Inspector(el("insp"));
+globalThis.inspector = insp;
+const inspd = {
+    drawOpt: new DRWI.InspectorSection("drawOpt", "Drawing Options", {
+        col: "#000000",
+    }, {col: ["Color", "color"]}),
+
+    drawPoly: new DRWI.InspectorSection("drawPoly", "Draw Polygon", {
         maxVertex: 3, count: 0
-    },
-    bucket: {
-        col: {r: 0, g: 0, b: 0, a: 1}
-    },
-    model: {
+    }, {maxVertex: ["Max Vertex"], count: ["Count"]}),
+
+    bucket: new DRWI.InspectorSection("bucket", "Bucket", {
+        col: "#000000"
+    }, {col: ["Color", "color"]}),
+
+    model: new DRWI.InspectorSection("model", "Model", {
         pos: {x: 0, y: 0}, rot: 0, dilate: 1
-    },
-    point: {
-        pos: {x: 0, y: 0}, col: {r: 0, g: 0, b: 0, a: 1}
-    },
+    }, {pos: {
+        x: ["X", "", (x) => {
+            curState.selected.drawable.position.x = x;
+        }], y: ["Y", "", (y) => {
+            curState.selected.drawable.position.y = y;
+        }], _title: "Position"
+    }, rot: ["Rotation", "", (rot) => {
+        curState.selected.drawable.rotAngle = rot;
+    }], dilate: ["Dilatation", "", (val) => {
+        curState.selected.drawable.dilate = val;
+    }]}),
+
+    point: new DRWI.InspectorSection("point", "Point", {
+        pos: {x: 0, y: 0}, col: "#000000"
+    }, {pos: {
+        x: ["X", "", (x) => {
+            curState.selected.point.x = x;
+            hitboxSelect.point.x = x;
+        }], y: ["Y", "", (y) => {
+            curState.selected.point.y = y
+            hitboxSelect.point.y = y;
+        }], _title: "Position"
+    }, col: ["Color", "color", (v) => {
+        curState.selected.point.color.setHex(v)
+    }]}),
 }
+Object.keys(inspd).forEach((v) => { insp.register(inspd[v]); });
 
-const stateCbTemp = {
-    obj: (key, v) => {
-
-    }
-}
-
-const stateCb = {
-    drawPoly: {
-        maxVertex: (v) => {},
-        count: (v) => {},
-    },
-    bucket: {
-        col: {
-            r: (v) => {},
-            g: (v) => {},
-            b: (v) => {},
-            a: (v) => {},
-        },
-    },
-    model: {
-        pos: {
-            x: (v) => {},
-            y: (v) => {},
-        },
-        rot: (v) => {},
-        dilate: (v) => {},
-    },
-    point: {
-        pos: {
-            x: (v) => {},
-            y: (v) => {},
-        },
-        col: {
-            r: (v) => {},
-            g: (v) => {},
-            b: (v) => {},
-            a: (v) => {},
-        },
-    },
-}
-
-// usage: setState(uiElemInsp, useState, {maxVertex: 0, count: 0}, "drawPoly")
-function setState(uiObject, stateObject, stateCbObj, value, stateName) {
-    const state = stateObject[stateName];
-    const ui = uiObject[stateName];
-    const stCb = stateCbObj[stateName];
-    Object.keys(value).forEach((k) => {
-        if (k in state) {
-            const curVal = value[k];
-            const val = state[k];
-            if (val instanceof Object) setState(ui, state, stCb, curVal, k);
-            else {
-                state[k] = curVal;
-                ui[k].value = curVal;
-                stCb[k](curVal);
-            }
-        } else {
-            console.error(`Key ${k} not found in state ${stateName}`);
-        }
-    });
-}
-
-const uiElemInsp = uiElems.inspector;
-
-function hideEl(el) {
-    el.style.display = "none";
-}
-
-function showEl(el) {
-    el.style.display = "flex";
-}
-
-function setInspector(insp, toggle=true) {
-    if (toggle) {
-        hideEl(uiElemInsp.helper.body);
-        curState.inspector[insp] = true;
-        showEl(uiElemInsp[insp].body);
-    } else {
-        if (!(insp in curState.inspector)) return;
-        delete curState.inspector[insp];
-        hideEl(uiElemInsp[insp].body);
-        if (Object.keys(curState.inspector).length == 0) {
-            showEl(uiElemInsp.helper.body);
-        }
-    }
-}
-function setInspectorState(key, value) {
-    setState(uiElemInsp, useState, stateCb, value, key);
-}
-function setUpdateInspector(uiObj) {
-    function setUpdate(uiObj, parent) {
-        Object.keys(uiObj).forEach((v) => {
-            const ui = uiObj[v];
-            if (!(ui instanceof HTMLElement)) setUpdate(ui, parent);
-            else {
-                if (v == "body") return;
-                ui.addEventListener("input", (e) => {
-                    setInspectorState(
-                        parent,
-                        {[v]: e.target.value},
-                    );
-                });
-            }
-        });
-    }
-    Object.keys(uiObj).forEach((v) => { setUpdate(uiObj[v], v); });
-}
-setUpdateInspector(uiElemInsp);
-
-
-Object.keys(uiElemInsp).forEach((v) => {
-    if (v == "helper") return;
-    hideEl(uiElemInsp[v].body);
+const toolbar = new DRWT.Toolbar(el("toolbar"), () => {
+    if (toolbar.selected)
+        curState.selected = undefined;
 });
-Object.keys(useState).forEach((v) => {
-    setInspectorState(v, useState[v]);
-});
-
-const tool = {
-    line: {
-        create: (v) => {
-            const point = new DRW.Point(v.position.x, v.position.y);
-            return new DRW.Line(point, point.clone());
+globalThis.tb = toolbar;
+const toolitem = {
+    line: new DRWT.ToolItem("line", { onToggle,
+        begin(v) { return createModel("Line", v.position); },
+        end, update(v, m) {updatePoint(m.p2, v)}
+    }),
+    square: new DRWT.ToolItem("square", { onToggle,
+        begin(v) { return createModel("Square", v.position); },
+        end, update(v, m) {updatePoint(m.br, v)}
+    }),
+    rect: new DRWT.ToolItem("rect", { onToggle,
+        begin(v) { return createModel("Rectangle", v.position); },
+        end, update(v, m) {updatePoint(m.br, v)}
+    }),
+    polygon: new DRWT.ToolItem("polygon", {
+        onToggle(v) { onToggle(v); insp.toggle("drawPoly"); },
+        begin(v) {
+            inspd.drawPoly.setState({count: 1});
+            return createModel("Polygon", v.position);
         },
-        end: () => {curState.selected = undefined;},
-        update: (v, m) => {m.p2.set(v.position.x, v.position.y)},
-    },
-    square: {
-        create: (v) => {
-            const point = new DRW.Point(v.position.x, v.position.y);
-            return new DRW.Square(point, point.clone());
-        },
-        end: () => {curState.selected = undefined;},
-        update: (v, m) => {
-            m.br.set(v.position.x, v.position.y);
-            m.update();
-        }
-    },
-    rect: {
-        create: (v) => {
-            const point = new DRW.Point(v.position.x, v.position.y);
-            return new DRW.Rectangle(point, point.clone());
-        },
-        end: () => {curState.selected = undefined;},
-        update: (v, m) => {
-            m.br.set(v.position.x, v.position.y);
-            m.update();
-        }
-    },
-    polygon: {
-        create: (v) => {
-            const point = new DRW.Point(v.position.x, v.position.y);
-            const polygon = new DRW.Polygon(point, point.clone());
-            setInspectorState("drawPoly", {count: 1});
-            return polygon;
-        },
-        end: (e) => {
+        /** @param {DrawEvent} e */
+        end(e) {
             const poly = e.drawable;
-            const count = useState.drawPoly.count;
-            setInspectorState("drawPoly", {count: count + 1});
-            if (count+1 >= useState.drawPoly.maxVertex)
-                curState.selected = undefined;
-            else
-                poly.points.push(poly.points[count].clone());
+            const count = inspd.drawPoly.state.count + 1;
+            inspd.drawPoly.setState({count})
+            if (count >= inspd.drawPoly.state.maxVertex) {
+                curState.selected = undefined; // finally end
+                toolbar.isUsing = false;
+            } else
+                poly.points.push(poly.points[count-1].clone()); // keep adding
         },
-        update: (v, m) => {
-            m.points[useState.drawPoly.count].copyPos(v.position);
-        }
-    },
-    bucket: {
-        create: (ev) => {
+        update(v, m) {updatePoint(m.points[m.points.length-1], v)}
+    }),
+    bucket: new DRWT.ToolItem("bucket", {
+        onToggle(v) { insp.toggle("bucket"); },
+        begin(ev) {
             const p = ev.point;
-            if (p) {
-                p.color.set();
-            }
+            if (p) p.color.setHex(inspd.bucket.state.col);
         },
-    }
+    }),
 }
+Object.keys(toolitem).forEach((v) => { toolbar.add(toolitem[v]); });
 
 const draw = new DRW.Drawer("#glcanvas");
-draw.clearColor = DRW.Color.white();
+draw.clearColor = new DRW.Color(1,1,1,1);
 
 const hitboxHover = new DRW.Hitbox(new DRW.Point(0, 0, DRW.Color.red()), 10);
 const hitboxSelect = new DRW.Hitbox(new DRW.Point(0, 0, DRW.Color.green()), 20);
@@ -260,81 +150,62 @@ hitboxSelect.visible = false;
 draw.add(hitboxSelect);
 draw.add(hitboxHover);
 
-draw.addEventListener("mousemove", (e) => {
-    if (curState.tool) {
-        if (curState.selected) {
-            tool[curState.tool].update(e, curState.selected);
-        }
+
+draw.addEventListener("mousemove",
+/** @param {DrawEvent} e */
+(e) => {
+    if (toolbar.selected) {
+        if (curState.selected)
+            toolbar.currentTool.actions.update?.(e, curState.selected);
     } else {
-        if (curState.selected) { // move selected item
+        if (curState.dragged) { // move selected item
             const p = curState.selected.point;
-            p.copyPos(e.position);
-            hitboxSelect.point.copyPos(p);
-        }
-        if (e.point) {
-            const p = e.point;
-            hitboxHover.visible = true;
-            hitboxHover.point.copyPos(p);
+            if (!p) {
+                // TODO: position
+                const d = curState.selected.drawable;
+                d.position.add(e.delta);
+                inspd.model.setState({pos: {x: d.position.x, y: d.position.y}});
+            } else {
+                p.copyPos(e.position);
+                inspd.point.setState({pos: {x: p.x, y: p.y}});
+                hitboxSelect.point.copyPos(p);
+            }
         } else {
-            hitboxHover.visible = false;
+            if (e.point || e.center) {
+                const p = e.point || e.center;
+                hitboxHover.visible = true;
+                hitboxHover.point.copyPos(p);
+            } else {
+                hitboxHover.visible = false;
+            }
         }
     }
 });
 
-draw.addEventListener("mousedown", (e) => {
-    if (curState.tool) {
-        if (curState.selected) { // ongoing selected 
-            tool[curState.tool].end(e);
-        } else {
-            const model = tool[curState.tool].create(e);
+draw.addEventListener("mousedown",
+/** @param {DrawEvent} e */
+(e) => {
+    if (toolbar.selected) {
+        const model = toolbar.run(e, curState.selected);
+        if (model) {
             curState.selected = model;
             draw.add(model);
         }
     } else {
         if (e.drawable) {
             curState.selected = e;
-            hitboxHover.visible = false;
-            hitboxSelect.visible = true;
-            hitboxSelect.point.copyPos(e.point);
+            curState.dragged = true;
         } else {
             curState.selected = undefined;
-            hitboxSelect.visible = false;
         }
     }
 });
 
 draw.addEventListener("mouseup", (e) => {
     if (!curState.tool) {
-        curState.selected = undefined;
+        curState.dragged = false;
     }
 });
-
-function selectTool(t, ti) {
-    setInspector("drawPoly", ti == "polygon");
-    setInspector("bucket", ti == "bucket");
-    t && t.classList.add("toggled");
-    curState.tool = ti;
-}
-
-for (let ti in uiElems.tool) {
-    const t = uiElems.tool[ti];
-    t.addEventListener("click", () => {
-        if (curState.tool) { // there is tool selected
-            if (!curState.selected) { // prevent if still building model
-                uiElems.tool[curState.tool].classList.remove("toggled");
-                if (curState.tool != ti) { // toggle to another tool
-                    selectTool(t, ti);
-                } else { // same tool, toggle off it
-                    selectTool(null, "");
-                }
-            } else {
-                alert("Finish building model first!");
-            }
-        } else { // no tool selected
-            selectTool(t, ti);
-        }
-    });
-}
 
 function render() {
     draw.render();

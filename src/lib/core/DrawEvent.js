@@ -1,6 +1,8 @@
 import Drawer from "../Drawer.js"
 import Drawable from "./Drawable.js"
+import Point from "./Point.js"
 import { getClipPosition } from "./Utils.js"
+import Vector2 from "./Vector2.js"
 
 export default class DrawEvent {
     /** @type {string} Draw event type. */
@@ -13,10 +15,10 @@ export default class DrawEvent {
     #drawable  // lazy load
     /** @type {Point} Point selected. */
     #point  // lazy load
+    /** @type {Vector2} Point center. */
+    #center // lazy load
     /** @type {object} Other properties to add to the event. */
     #other
-    /** @type {function} Callback to load model and point. */
-    #cbLoadModel
     /** @type {number} Tolerance for draw event */
     tolerance
 
@@ -34,11 +36,6 @@ export default class DrawEvent {
         this.#position = getClipPosition(ev);
         this.tolerance = 10;
         this.#other = other;
-        this.#cbLoadModel = () => {
-            const res = drawer.getObjectAt(this.#position, this.tolerance);
-            this.#drawable = res.drawable;
-            this.#point = res.point;
-        };
     }
 
     get type() {
@@ -54,21 +51,33 @@ export default class DrawEvent {
     }
 
     get drawable() {
-        this.#loadModelPoint();
+        if (this.#drawable === undefined) {
+            const res = this.point;
+            if (res === null)
+                this.center;
+        }
         return this.#drawable;
     }
 
     get point() {
-        this.#loadModelPoint();
+        if (this.#point === undefined) {
+            const res = this.#target.getObjectAt(this.#position, this.tolerance);
+            this.#drawable = res.drawable;
+            this.#point = res.point;
+        }
         return this.#point;
+    }
+
+    get center() {
+        if (this.#center === undefined){
+            const res = this.#target.getDrawableAt(this.#position, this.tolerance);
+            this.#drawable = res.drawable;
+            this.#center = res.center;
+        }
+        return this.#center;
     }
     
     get other() {
         return this.#other;
-    }
-
-    #loadModelPoint() {
-        if (this.#drawable === undefined)
-            this.#cbLoadModel();
     }
 }

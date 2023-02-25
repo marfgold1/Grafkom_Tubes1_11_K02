@@ -46,11 +46,28 @@ export default class Point extends Vector2 {
     }
 
     /**
-     * Setter for point's color
-     * @param {Color} color
+     * @param {number} x
      */
-    set color(color) {
-        this.#color = color;
+    set x(x) {
+        super.x = x;
+        this.onChange && this.onChange();
+    }
+
+    /**
+     * @param {number} y
+     */
+    set y(y) {
+        super.y = y;
+        this.onChange && this.onChange();
+    }
+
+    set(x, y) {
+        super.set(x, y);
+        this.onChange && this.onChange();
+    }
+
+    get color() {
+        return this.#color;
     }
 
     copyPos(p) {

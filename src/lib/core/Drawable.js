@@ -78,9 +78,9 @@ export default class Drawable {
      * 
      * @param {{x: number, y: number}} position Position to check.
      * @param {number} tolerance Tolerance in pixel.
-     * @returns {boolean}
+     * @returns {Point?}
      */
-    isIn(position, tolerance=5) {
+    getCenterIfIn(position, tolerance=5) {
         const len = this.#points.length;
         let avg_x = 0, avg_y = 0;
         this.#points.forEach((p) => {
@@ -90,7 +90,10 @@ export default class Drawable {
         avg_x /= len;
         avg_y /= len;
         const center = new Vector2(avg_x, avg_y);
-        return center.dist(position) < tolerance;
+        if (center.dist(position) < tolerance) {
+            return center;
+        }
+        return null;
     }
 
     /**

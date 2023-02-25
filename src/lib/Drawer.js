@@ -3,6 +3,7 @@ import DrawEvent from "./core/DrawEvent.js";
 import Drawable from "./core/Drawable.js";
 import EventDispatcher from "./core/EventDispatcher.js";
 import Point from "./core/Point.js";
+import Hitbox from "./drawables/Hitbox.js";
 import DefaultVertShader from "./shaders/default.vert.js";
 import DefaultFragShader from "./shaders/default.frag.js";
 
@@ -78,20 +79,35 @@ export default class Drawer extends EventDispatcher {
      * Get drawable or point from position.
      * @param {{x: number, y: number}} position Position to check for.
      * @param {number} tolerance Tolerance in pixel.
-     * @returns {{drawable: Drawable, point: Point}}
+     * @returns {{drawable?: Drawable, point?: Point}}
      */
     getObjectAt(position, tolerance=10) {
         const drawables = this.#drawables;
         let point = null, drawable = null;
         for (let i = 0; i < drawables.length; i++) {
             let d = drawables[i];
-            if (!d.visible) continue;
+            if (!d.visible || d instanceof Hitbox) continue;
             point = d.getPointOnPosition(position, tolerance);
             if (point) { drawable = d; break; }
         }
         return {
             drawable,
             point,
+        }
+    }
+
+    getDrawableAt(position, tolerance=10) {
+        const drawables = this.#drawables;
+        let center = null, drawable = null;
+        for (let i = 0; i < drawables.length; i++) {
+            let d = drawables[i];
+            if (!d.visible || d instanceof Hitbox) continue;
+            center = d.getCenterIfIn(position, tolerance);
+            if (center) { drawable = d; break; }
+        }
+        return {
+            drawable,
+            center,
         }
     }
 
