@@ -12,3 +12,15 @@ export function getClipPosition(ev) {
         y: ev.clientY - rect.top
     }
 }
+
+/**
+ * Create new element node from HTML string.
+ * @param {string} html HTML string to create element from
+ * @return {HTMLCollection}
+ */
+export function createEl(html) {
+    var template = document.createElement('template');
+    html = html.trim();
+    template.innerHTML = html;
+    return template.content.children;
+}

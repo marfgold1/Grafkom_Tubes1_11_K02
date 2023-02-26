@@ -56,10 +56,10 @@ export default class Color {
      * @param {string} hex Hex string
      * @param {number} a Alpha value
      */
-    setHex(hex, a = this.a) {
-        this.r = parseInt(hex.substring(1, 3), 16);
-        this.g = parseInt(hex.substring(3, 5), 16);
-        this.b = parseInt(hex.substring(5, 7), 16);
+    setHex(hex, a=this.a) {
+        this.r = parseInt(hex.substring(1, 3), 16) / 255;
+        this.g = parseInt(hex.substring(3, 5), 16) / 255;
+        this.b = parseInt(hex.substring(5, 7), 16) / 255;
         this.a = a;
     }
 
@@ -114,11 +114,10 @@ export default class Color {
      * Convert RGB to Hexadecimal representation
      */
     get hex() {
-        return `#\
-        ${(this.r*255).toString(16).padStart(2, '0')}\
-        ${(this.g*255).toString(16).padStart(2, '0')}\
-        ${(this.b*255).toString(16).padStart(2, '0')}\
-        `;
+        return "#" +
+        (this.r*255).toString(16).padStart(2, '0') +
+        (this.g*255).toString(16).padStart(2, '0') +
+        (this.b*255).toString(16).padStart(2, '0');
     }
 
     static red() {
@@ -139,5 +138,13 @@ export default class Color {
 
     static black() {
         return new Color(0, 0, 0, 1);
+    }
+
+    toJSON() {
+        return { r: this.r, g: this.g, b: this.b, a: this.a };
+    }
+
+    static fromJSON(obj) {
+        return new Color(obj.r, obj.g, obj.b, obj.a);
     }
 }
