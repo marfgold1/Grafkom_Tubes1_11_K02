@@ -121,11 +121,15 @@ class InspectorSection {
     }
 
     #createStateInputEl(id, stateOpt, value, parent, child) {
+        if (stateOpt?.[1] === "submit") {
+            const buttonVal = value;
+            value = stateOpt[0];
+        }
         const it = createEl(`
         <td colspan="${parent?1:4}">
             <div class="insp-item-sect">
-                <label for="${id}">${stateOpt[0]}</label>
-                <input type="${stateOpt[1] || "number"}" id="${id}" value="${value}" />
+                <label for="${id}">${stateOpt?.[0]}</label>
+                <input type="${stateOpt?.[1] || "number"}" id="${id}" value="${value}" />
             </div>
         </td>
         `).item(0);
@@ -143,13 +147,13 @@ class InspectorSection {
             inp.addEventListener("input", (e) => {
                 this.setState({ [parent]: { [child]: getValue(e) } });
             })
-            this.#stateCb[parent][child] = stateOpt[2];
+            this.#stateCb[parent][child] = stateOpt?.[2];
         } else {
             inp = inp.item(0).children.item(1);
             inp.addEventListener("input", (e) => {
                 this.setState({ [child]: getValue(e) });
             })
-            this.#stateCb[child] = stateOpt[2];
+            this.#stateCb[child] = stateOpt?.[2];
         }
         return [it, inp];
     }

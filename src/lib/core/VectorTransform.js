@@ -8,28 +8,30 @@ export default class VectorTransform extends Vector2 {
     /** @type {Point} Original point. */
     #originalPoint
 
-    constructor(originalPoint, position, rotAngle, dilatation) {
-        let x = originalPoint.x;
-        let y = originalPoint.y;
-        const d = rotAngle/180.0*Math.PI;
-        const s = Math.sin(d);
-        const c = Math.cos(d);
-        super(
-            dilatation*(x*c+y*s)+position.x,
-            dilatation*(-x*s+y*c)+position.y,
-        );
+    constructor(originalPoint, center, position, rotAngle, dilatation) {
+        const p = originalPoint;
+        const relX = p.x - center.x;
+        const relY = p.y - center.y;
+        rotAngle = rotAngle / 180.0 * Math.PI;
+        const s = Math.sin(rotAngle);
+        const c = Math.cos(rotAngle);
+        const x = dilatation * (relX * c - relY * s) + position.x + center.x;
+        const y = dilatation * (relX * s + relY * c) + position.y + center.y;
+        super(x, y);
         this.#originalPoint = originalPoint;
     }
 
-    static reverse(currentPoint, position, rotAngle, dilatation) {
-        const d = rotAngle/180.0*Math.PI;
-        const s = Math.sin(d);
-        const c = Math.cos(d);
-        const x = (currentPoint.x-position.x)/dilatation;
-        const y = (currentPoint.y-position.y)/dilatation;
+    static reverse(currentPoint, center, position, rotAngle, dilatation) {
+        const p = currentPoint;
+        const relX = p.x - position.x - center.x;
+        const relY = p.y - position.y - center.y;
+        rotAngle = rotAngle / 180.0 * Math.PI;
+        const s = Math.sin(rotAngle);
+        const c = Math.cos(rotAngle);
+        const x = (relX * c + relY * s) / dilatation + center.x;
+        const y = (-relX * s + relY * c) / dilatation + center.y;
         return new Vector2(
-            x*c-y*s,
-            x*s+y*c,
+            x, y
         );
     }
 

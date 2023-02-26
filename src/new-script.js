@@ -74,16 +74,14 @@ const inspd = {
     }, {col: ["Color", "color"]}),
 
     model: new DRWI.InspectorSection("model", "Model", {
-        pos: {x: 0, y: 0}, rot: 0, dilate: 1
+        pos: {x: 0, y: 0}, dilate: 1
     }, {pos: {
         x: ["X", "", (x) => {
-            curState.selected.drawable.position.x = x;
+            curState.selected.drawable.position.x = +x;
         }], y: ["Y", "", (y) => {
-            curState.selected.drawable.position.y = y;
+            curState.selected.drawable.position.y = +y;
         }], _title: "Position"
-    }, rot: ["Rotation", "", (rot) => {
-        curState.selected.drawable.rotAngle = rot;
-    }], dilate: ["Dilatation", "", (val) => {
+    }, dilate: ["Dilatation", "", (val) => {
         curState.selected.drawable.dilatation = val;
     }]}),
 
@@ -98,6 +96,14 @@ const inspd = {
     }, col: ["Color", "color", (v) => {
         curState.selected.point.color.setHex(v)
     }]}),
+
+    save: new DRWI.InspectorSection("save", "Save", {
+        name: "drawing", buttonSave: () => {
+
+        },
+    }, {
+        name: ["Name", "text"], buttonSave: ["Save", "submit", null]
+    })
 }
 Object.keys(inspd).forEach((v) => { insp.register(inspd[v]); });
 
@@ -147,6 +153,9 @@ const toolitem = {
             if (p) p.color.setHex(inspd.bucket.state.col);
         },
     }),
+    save: new DRWT.ToolItem("save", {
+        onToggle(v) { insp.toggle("save"); },
+    }),
 }
 Object.keys(toolitem).forEach((v) => { toolbar.add(toolitem[v]); });
 
@@ -184,7 +193,7 @@ draw.addEventListener("mousemove",
             } else {
                 const m = curState.selected.drawable;
                 const tfPos = VectorTransform.reverse(
-                    e.position, m.position, m.rotAngle, m.dilatation,
+                    e.position, m.center, m.position, m.rotAngle, m.dilatation,
                 );
                 const op = p.originalPoint;
                 op.copyPos(tfPos);

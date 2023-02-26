@@ -39,9 +39,10 @@ export default class Drawable {
     get trPoints() {
         // kalkulasi
         if (this.needsUpdate) {
+            const center = this.center;
             this.#trPoints = this.#points.map(p => {
                 return new VectorTransform(
-                    p, this.#position, this.rotAngle, this.dilatation
+                    p, center, this.#position, this.rotAngle, this.dilatation
                 );
             });
             this.needsUpdate = false;
@@ -63,6 +64,23 @@ export default class Drawable {
 
     get position() {
         return this.#position;
+    }
+
+    get center() {
+        const len = this.#points.length;
+        let avg_x = 0, avg_y = 0;
+        this.#points.forEach((p) => {
+            avg_x += p.x;
+            avg_y += p.y;
+        }, 0);
+        avg_x /= len;
+        avg_y /= len;
+        return new Vector2(avg_x + this.position.x, avg_y + this.position.y);
+    }
+
+    get trCenter() {
+        const center = this.center;
+        return new Vector2(center.x + this.position.x, center.y + this.position.y);
     }
 
     /**
@@ -94,18 +112,8 @@ export default class Drawable {
      * @returns {VectorTransform?}
      */
     getCenterIfIn(position, tolerance=5) {
-        const points = this.trPoints;
-        const len = points.length;
-        let avg_x = 0, avg_y = 0;
-        points.forEach((p) => {
-            avg_x += p.x;
-            avg_y += p.y;
-        }, 0);
-        avg_x /= len;
-        avg_y /= len;
-        const center = new Vector2(avg_x, avg_y);
-        if (center.dist(position) < tolerance) {
-            return center;
+        if (this.trCenter.dist(position) < tolerance) {
+            return this.trCenter;
         }
         return null;
     }
