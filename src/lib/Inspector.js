@@ -6,7 +6,7 @@
 
 import { createEl } from "./core/Utils.js";
 
-class InspectorSection {
+export class InspectorSection {
     /** @type {HTMLElement} Body section element */
     #bodyEl
     /** @type {HTMLElement} Items section element */
@@ -161,7 +161,7 @@ class InspectorSection {
     }
 }
 
-class Inspector {
+export class Inspector {
     /** @type {HTMLElement} Main element */
     #mainEl
     /** @type {Object<string, InspectorSection>} Inspector sections */
@@ -185,25 +185,27 @@ class Inspector {
         else this.show(inspName);
     }
 
-    show(inspName) {
+    show(...inspName) {
+        if (inspName.length > 1) {
+            inspName.forEach(v => this.show(v));
+            return;
+        }
+        if (inspName.length === 0) return;
+        inspName = inspName[0];
         if (this.#currentSect.has(inspName)) return;
         this.#currentSect.add(inspName);
         this.#sections[inspName].toggle(true);
     }
 
-    hide(inspName) {
+    hide(...inspName) {
+        if (inspName.length > 1) {
+            inspName.forEach(v => this.hide(v));
+            return;
+        }
+        if (inspName.length === 0) return;
+        inspName = inspName[0]
         if (!this.#currentSect.has(inspName)) return;
         this.#currentSect.delete(inspName);
         this.#sections[inspName].toggle(false);
     }
-}
-
-export default {
-    Inspector,
-    InspectorSection,
-}
-
-globalThis.DRWI = {
-    Inspector,
-    InspectorSection,
 }

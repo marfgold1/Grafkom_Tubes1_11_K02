@@ -1,6 +1,6 @@
 import { createEl } from "./core/Utils.js";
 
-class ToolItem {
+export class ToolItem {
     /** @type {string} Tool name */
     #name;
     /** @type {HTMLElement} Body element of tool */
@@ -46,7 +46,7 @@ class ToolItem {
     }
 }
 
-class Toolbar {
+export class Toolbar {
     /** @type {string} Current tool name */
     selected;
     /** @type {HTMLElement} Toolbar body element */
