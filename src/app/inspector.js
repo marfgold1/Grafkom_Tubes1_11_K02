@@ -115,13 +115,23 @@ export const inspectorItems = {
         }]
     }),
 
-    save: new InspectorSection("save", "Save", {
-        name: "drawing",
-        buttonSave: () => {
-            SaveLoadFile.save(app.drawer, app.drawer.gl);
+    import: new InspectorSection("import", "Import", {
+        file: "",
+        buttonLoad: () => {
+            SaveLoadFile.load(app.drawer, inspectorItems.import.state.file);
         },
     }, {
-        name: ["Name", "text"],
+        file: ["File", "file"],
+        buttonLoad: ["Load", "submit"],
+    }, true),
+
+    export: new InspectorSection("export", "Export", {
+        name: "drawing",
+        buttonSave: () => {
+            SaveLoadFile.save(app.drawer, inspectorItems.export.state.name);
+        },
+    }, {
+        name: ["File Name", "text"],
         buttonSave: ["Save", "submit"],
     }, true),
 

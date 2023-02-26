@@ -48,6 +48,10 @@ export class InspectorSection {
         return this.#bodyEl;
     }
 
+    get itemsEl() {
+        return this.#itemsEl;
+    }
+
     get state() {
         return this.#state;
     }
@@ -77,12 +81,12 @@ export class InspectorSection {
                         return; // drop if key not in state
                     }
                     this.#state[v][vv] = s[vv];
-                    this.#stateEl[v][vv].value = s[vv];
+                    try { this.#stateEl[v][vv].value = s[vv]; } catch (e) {}
                     this.#stateCb[v][vv] && this.#stateCb[v][vv](s[vv]);
                 });
             } else {
                 this.#state[v] = s;
-                this.#stateEl[v].value = s;
+                try { this.#stateEl[v].value = s; } catch (e) {}
                 this.#stateCb[v] && this.#stateCb[v](s);
             }
         });
@@ -147,6 +151,18 @@ export class InspectorSection {
             it.children.item(0).children.item(0).addEventListener("click", (e) => {
                 buttonCb?.(e);
             })
+        } else if (stateOpt[1] === "file") {
+            inp.addEventListener("change", (e) => {
+                const file = e.target.files[0];
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    let data = { [child]: e.target.result };
+                    if (parent) data = { [parent]: data };
+                    this.setState(data);
+                }
+                reader.readAsText(file);
+            })
+            this.#stateCb[child] = stateOpt?.[2];
         } else if (parent) {
             inp.addEventListener("input", (e) => {
                 this.setState({ [parent]: { [child]: getValue(e) } });

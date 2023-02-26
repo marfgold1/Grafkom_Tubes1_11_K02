@@ -44,6 +44,6 @@ export default class Hitbox extends Drawable {
 
     static fromJSON(json) {
         const h = new Hitbox(Point.fromJSON(json.p), json.size);
-        super.fromJSON(h, json);
+        return super.fromJSON(h, json);
     }
 }

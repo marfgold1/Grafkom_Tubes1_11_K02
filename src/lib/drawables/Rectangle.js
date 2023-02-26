@@ -89,13 +89,15 @@ export default class Rectangle extends Drawable {
     toJSON() {
         return {
             ...super.toJSON(),
-            p1: this.#tl.toJSON(),
-            p2: this.#br.toJSON(),
+            points: this.points.map(p => p.toJSON()),
         }
     }
 
     static fromJSON(json) {
-        const r = new Rectangle(Point.fromJSON(json.p1), Point.fromJSON(json.p2));
-        super.fromJSON(r, json);
+        const r = new Rectangle(Point.fromJSON(json.points[0]), Point.fromJSON(json.points[2]));
+        r.points.forEach((p, i) => {
+            p.color.copy(json.points[i].color)
+        });
+        return super.fromJSON(r, json);
     }
 }

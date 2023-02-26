@@ -16,6 +16,8 @@ export default class Drawable {
     dilatation = 1;
     /** @type {boolean} Is drawable visible? */
     visible = true;
+    /** @type {boolean} Allow saving drawable */
+    allowSave = true;
     /** @type {boolean} Need update transform? */
     needsUpdate = true;
     /** @type {VectorTransform[]} Transformed point. */
@@ -140,14 +142,14 @@ export default class Drawable {
             type: this.#type,
             rotAngle: this.rotAngle,
             position: this.#position.toJSON(),
-            dilate: this.dilate,
+            dilate: this.dilatation,
             visible: this.visible
         }
     }
 
     static fromJSON(obj, json) {
         obj.position.set(json.position.x, json.position.y);
-        obj.dilate = json.dilate;
+        obj.dilatation = json.dilate;
         obj.visible = json.visible;
         obj.rotAngle = json.rotAngle;
         return obj;
