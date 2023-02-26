@@ -9,19 +9,17 @@ export default class Square extends Drawable {
 
     /**
      * Create new square in a quadrant.
-     * @param {Point} p Starting point of the square (top left).
-     * @param {number} side Length of the square.
-     * @param {number} quadrant Quadrant to draw the square in.
+     * @param {Point} p1 Starting point of the square.
+     * @param {Point} p2 Ending point of the square.
      */
-    constructor(p, side, quadrant=4) {
-        const bl = new Point(p1.x, p2.y);
-        const tr = new Point(p2.x, p1.y);
+    constructor(p1, p2) {
+        const bl = new Point(p1.x, p2.y, p1.color);
+        const tr = new Point(p2.x, p1.y, p1.color);
         super([p1, tr, p2, bl], "square");
-        this.#tl = p1;
-        this.#tr = tr;
-        this.#br = p2;
-        this.#bl = bl;
-        this.update();
+        this.#tl = p1; p1.onChange = () => this.#update("tl");
+        this.#tr = tr; tr.onChange = () => this.#update("tr");
+        this.#br = p2; p2.onChange = () => this.#update("br");
+        this.#bl = bl; bl.onChange = () => this.#update("bl");
     }
 
     get br() {
@@ -37,9 +35,13 @@ export default class Square extends Drawable {
     }
 
     #update(type) {
-        const s = Math.min(this.#br.x - this.#tl.x, this.#br.y - this.#tl.y);
-        this.#br.set(this.#tl.x + s, this.#tl.y + s);
-        this.#tr.set(this.#tl.x + s, this.#tl.y);
-        this.#bl.set(this.#tl.x, this.#tl.y + s);
+        if (type === "br") {
+            const dx = this.#br.x - this.#tl.x;
+            const dy = this.#br.y - this.#tl.y;
+            const s = Math.min(Math.abs(dx), Math.abs(dy));
+            this.#br.forceSet(this.#tl.x + s * (dx>0?1:-1), this.#tl.y + s * (dy>0?1:-1));
+            this.#tr.forceSet(this.#tl.x + s * (dx>0?1:-1), this.#tl.y);
+            this.#bl.forceSet(this.#tl.x, this.#tl.y + s * (dy>0?1:-1));
+        }
     }
 }

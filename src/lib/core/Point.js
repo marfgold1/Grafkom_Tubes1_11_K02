@@ -41,6 +41,10 @@ export default class Point extends Vector2 {
         this.onChange && this.onChange();
     }
 
+    forceSet(x, y) {
+        super.set(x, y);
+    }
+
     get x() {
         return super.x;
     }
