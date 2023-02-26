@@ -23,7 +23,7 @@ export const curState = new Proxy({
                     dilate: model.dilatation,
                 })
                 inspector.show("model");
-                inspector.hide("drawSquare", "drawRectangle", "point");
+                inspector.hide("drawSquare", "drawRectangle", "point", "buttonAdd", "buttonDelete");
 
                 if (val.point) {
                     const op = val.point.originalPoint;
@@ -47,10 +47,14 @@ export const curState = new Proxy({
                             });
                             inspector.show("drawRectangle");
                             break;
+                        case "polygon":
+                            inspector.show("buttonAdd");
+                            inspector.show("buttonDelete");
+                            break;
                     }
                 }
             } else {
-                inspector.hide("model", "point", "drawSquare", "drawRectangle");
+                inspector.hide("model", "point", "drawSquare", "drawRectangle", "buttonAdd", "buttonDelete");
                 hitboxSelect.visible = false;
             }
         }

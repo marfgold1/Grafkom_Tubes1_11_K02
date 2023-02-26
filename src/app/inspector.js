@@ -1,6 +1,6 @@
 import { Inspector, InspectorSection } from "../lib/Inspector.js";
 import SaveLoadFile from "../lib/SaveLoadFile.js";
-
+import Point from "../lib/core/Point.js";
 import { curState } from "./state.js";
 
 export const inspector = new Inspector(document.getElementById("insp"));
@@ -91,7 +91,19 @@ export const inspectorItems = {
     }, {
         name: ["Name", "text"],
         buttonSave: ["Save", "submit", null],
-    }, true)
+    }, true),
+
+    addPoint: new InspectorSection("addPoint", "Add point", {
+        buttonAdd: () => {
+            curState.selected.drawable.add(new Point(200, 80));
+        }
+    }),
+
+    deletePoint: new InspectorSection("deletePoint", "Delete point", {
+        buttonDelete: () => {
+            curState.selected.drawable.remove(curState.selected.drawable.point);
+        }
+    })
 }
 Object.keys(inspectorItems).forEach((v) => { inspector.register(inspectorItems[v]); });
 
