@@ -43,11 +43,17 @@ export default class Rectangle extends Drawable {
     }
 
     #update(type) {
-        if (type === "br") {
+        if (type === "br" || type === "tl") {
             const h = this.#br.y - this.#tl.y;
             const w = this.#br.x - this.#tl.x;
             this.#tr.forceSet(this.#tl.x + w, this.#tl.y);
             this.#bl.forceSet(this.#tl.x, this.#tl.y + h);
+        }
+        else if (type === "tr" || type === "bl") {
+            const h = this.#bl.y - this.#tr.y;
+            const w = this.#tr.x - this.#bl.x;
+            this.#tl.forceSet(this.#bl.x, this.#bl.y - h);
+            this.#br.forceSet(this.#bl.x + w, this.#bl.y);
         }
     }
 

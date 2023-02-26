@@ -43,5 +43,29 @@ export default class Square extends Drawable {
             this.#tr.forceSet(this.#tl.x + s * (dx>0?1:-1), this.#tl.y);
             this.#bl.forceSet(this.#tl.x, this.#tl.y + s * (dy>0?1:-1));
         }
+        else if (type === "tl") {
+            const dx = this.#br.x - this.#tl.x;
+            const dy = this.#br.y - this.#tl.y;
+            const s = Math.min(Math.abs(dx), Math.abs(dy));
+            this.#tl.forceSet(this.#br.x - s * (dx>0?1:-1), this.#br.y - s * (dy>0?1:-1));
+            this.#bl.forceSet(this.#br.x - s * (dx>0?1:-1), this.#br.y);
+            this.#tr.forceSet(this.#br.x, this.#br.y - s * (dy>0?1:-1));
+        }
+        else if (type === "tr") {
+            const dx = this.#tr.x - this.#bl.x;
+            const dy = this.#bl.y - this.#tr.y;
+            const s = Math.min(Math.abs(dx), Math.abs(dy));
+            this.#tr.forceSet(this.#bl.x + s * (dx>0?1:-1), this.#bl.y - s * (dy>0?1:-1));
+            this.#br.forceSet(this.#bl.x + s * (dx>0?1:-1), this.#bl.y);
+            this.#tl.forceSet(this.#bl.x, this.#bl.y - s * (dy>0?1:-1));
+        }
+        else if (type === "bl") {
+            const dx = this.#tr.x - this.#bl.x;
+            const dy = this.#bl.y - this.#tr.y;
+            const s = Math.min(Math.abs(dx), Math.abs(dy));
+            this.#bl.forceSet(this.#tr.x - s * (dx>0?1:-1), this.#tr.y + s * (dy>0?1:-1));
+            this.#tl.forceSet(this.#tr.x - s * (dx>0?1:-1), this.#tr.y);
+            this.#br.forceSet(this.#tr.x, this.#tr.y + s * (dy>0?1:-1));
+        }
     }
 }

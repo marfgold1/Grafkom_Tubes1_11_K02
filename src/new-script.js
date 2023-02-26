@@ -57,6 +57,10 @@ const inspd = {
         col: "#000000",
     }, {col: ["Color", "color"]}),
 
+    drawSquare: new DRWI.InspectorSection("drawSquare", "Draw Square", {
+        side: 0
+    }, {side: ["Side length"]}),
+
     drawPoly: new DRWI.InspectorSection("drawPoly", "Draw Polygon", {
         maxVertex: 3, count: 0
     }, {maxVertex: ["Max Vertex"], count: ["Count"]}),
@@ -105,9 +109,11 @@ const toolitem = {
         begin(v) { return createModel("Line", v.position); },
         end, update(v, m) {updatePoint(m.p2, v)}
     }),
-    square: new DRWT.ToolItem("square", { onToggle,
+    square: new DRWT.ToolItem("square", { 
+        onToggle(v) { onToggle(v); insp.toggle("drawSquare") },
         begin(v) { return createModel("Square", v.position); },
-        end, update(v, m) {updatePoint(m.br, v)}
+        end, 
+        update(v, m) { updatePoint(m.br, v); inspd.drawSquare.setState({side: m.side})}
     }),
     rect: new DRWT.ToolItem("rect", { onToggle,
         begin(v) { return createModel("Rectangle", v.position); },
