@@ -23,7 +23,7 @@ export const curState = new Proxy({
                     dilate: model.dilatation,
                 })
                 inspector.show("model");
-                inspector.hide("drawSquare", "drawRectangle", "point", "buttonAdd", "buttonDelete");
+                inspector.hide("drawSquare", "drawRectangle", "point", "addPoint", "deletePoint");
 
                 if (val.point) {
                     const op = val.point.originalPoint;
@@ -32,6 +32,11 @@ export const curState = new Proxy({
                         col: val.point.color.hex,
                     });
                     inspector.show("point");
+                    
+                    if (val.drawable.type === "polygon") {
+                        inspector.show("deletePoint");
+                    }
+
                 } else {
                     switch(val.drawable.type) {
                         case "square":
@@ -48,13 +53,13 @@ export const curState = new Proxy({
                             inspector.show("drawRectangle");
                             break;
                         case "polygon":
-                            inspector.show("buttonAdd");
-                            inspector.show("buttonDelete");
+                            inspector.show("addPoint");
+                            inspector.show("deletePoint");
                             break;
                     }
                 }
             } else {
-                inspector.hide("model", "point", "drawSquare", "drawRectangle", "buttonAdd", "buttonDelete");
+                inspector.hide("model", "point", "drawSquare", "drawRectangle", "addPoint", "deletePoint");
                 hitboxSelect.visible = false;
             }
         }

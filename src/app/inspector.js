@@ -90,19 +90,31 @@ export const inspectorItems = {
         },
     }, {
         name: ["Name", "text"],
-        buttonSave: ["Save", "submit", null],
+        buttonSave: ["Save", "submit"],
     }, true),
 
     addPoint: new InspectorSection("addPoint", "Add point", {
+        pos: {x: 200, y: 80},
         buttonAdd: () => {
-            curState.selected.drawable.add(new Point(200, 80));
+            curState.selected.drawable.add(new Point(inspectorItems.addPoint.state.pos.x, inspectorItems.addPoint.state.pos.y));
         }
+    }, {
+        pos: {
+            x: ["X", ""],
+            y: ["Y", ""],
+            _title: "New Position"
+        },
+        buttonAdd: ["Add New Point", "submit"],
     }),
 
     deletePoint: new InspectorSection("deletePoint", "Delete point", {
+        idx: 0,
         buttonDelete: () => {
-            curState.selected.drawable.remove(curState.selected.drawable.point);
+            curState.selected.drawable.removeAt(inspectorItems.deletePoint.state.idx);
         }
+    }, {
+        idx: ["Index", ""],
+        buttonDelete: ["Delete Point", "submit"]
     })
 }
 Object.keys(inspectorItems).forEach((v) => { inspector.register(inspectorItems[v]); });

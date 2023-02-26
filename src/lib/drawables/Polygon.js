@@ -13,6 +13,11 @@ export default class Polygon extends Drawable {
         this.points.splice(this.points.indexOf(p), 1);
     }
 
+    removeAt(idx) {
+        if (idx > -1 && idx < this.points.length)
+            this.points.splice(idx, 1);
+    }
+
     onSetVariables(drawer) {
         super.onSetVariables(drawer);
         drawer.setUniform("pointSize", this.size);
