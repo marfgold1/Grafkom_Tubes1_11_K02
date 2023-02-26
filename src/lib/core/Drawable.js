@@ -1,6 +1,7 @@
 import Drawer from "../Drawer.js";
 import Point from "./Point.js";
 import Vector2 from "./Vector2.js";
+import VectorTransform from "./VectorTransform.js";
 
 export default class Drawable {
     /** @type {string} Type of drawable */
@@ -12,9 +13,13 @@ export default class Drawable {
     /** @type {Vector2} Position of drawable. */
     #position = new Vector2(0, 0);
     /** @type {number} Dilatation of drawable. */
-    dilate = 1;
+    dilatation = 1;
     /** @type {boolean} Is drawable visible? */
     visible = true;
+    /** @type {boolean} Need update transform? */
+    needsUpdate = true;
+    /** @type {VectorTransform[]} Transformed point. */
+    #trPoints
 
     /**
      * Create new instance of drawable.
@@ -33,7 +38,15 @@ export default class Drawable {
     
     get trPoints() {
         // kalkulasi
-        return result;
+        if (this.needsUpdate) {
+            this.#trPoints = this.#points.map(p => {
+                return new VectorTransform(
+                    p, this.#position, this.rotAngle, this.dilatation
+                );
+            });
+            this.needsUpdate = false;
+        }
+        return this.#trPoints;
     }
 
     get type() {
@@ -41,7 +54,7 @@ export default class Drawable {
     }
 
     get vertices() {
-        return this.#points.map(p => p.toArray()).flat();
+        return this.trPoints.map(p => p.toArray()).flat();
     }
 
     get vertexColors() {
@@ -57,10 +70,10 @@ export default class Drawable {
      * 
      * @param {{x: number, y: number}} position Position to check.
      * @param {number} tolerance Tolerance in pixel.
-     * @returns {Point?}
+     * @returns {VectorTransform?}
      */
     getPointOnPosition(position, tolerance=5) {
-        const points = this.#points;
+        const points = this.trPoints;
         let result = null;
         for (let i = 0; i < points.length; i++) {
             const p = points[i];
@@ -78,12 +91,13 @@ export default class Drawable {
      * 
      * @param {{x: number, y: number}} position Position to check.
      * @param {number} tolerance Tolerance in pixel.
-     * @returns {Point?}
+     * @returns {VectorTransform?}
      */
     getCenterIfIn(position, tolerance=5) {
-        const len = this.#points.length;
+        const points = this.trPoints;
+        const len = points.length;
         let avg_x = 0, avg_y = 0;
-        this.#points.forEach((p) => {
+        points.forEach((p) => {
             avg_x += p.x;
             avg_y += p.y;
         }, 0);

@@ -6,6 +6,7 @@ import Point from "./core/Point.js";
 import Hitbox from "./drawables/Hitbox.js";
 import DefaultVertShader from "./shaders/default.vert.js";
 import DefaultFragShader from "./shaders/default.frag.js";
+import VectorTransform from "./core/VectorTransform.js";
 
 export default class Drawer extends EventDispatcher {
     /** @type {WebGLRenderingContext} WebGL instance */
@@ -76,10 +77,10 @@ export default class Drawer extends EventDispatcher {
     }
 
     /**
-     * Get drawable or point from position.
+     * Get drawable point from position.
      * @param {{x: number, y: number}} position Position to check for.
      * @param {number} tolerance Tolerance in pixel.
-     * @returns {{drawable?: Drawable, point?: Point}}
+     * @returns {{drawable?: Drawable, point?: VectorTransform}}
      */
     getObjectAt(position, tolerance=10) {
         const drawables = this.#drawables;
@@ -96,6 +97,12 @@ export default class Drawer extends EventDispatcher {
         }
     }
 
+    /**
+     * Get drawable from position.
+     * @param {{x: number, y: number}} position Position to check for.
+     * @param {number} tolerance Tolerance in pixel.
+     * @returns {{drawable?: Drawable, center?: VectorTransform}}
+     */
     getDrawableAt(position, tolerance=10) {
         const drawables = this.#drawables;
         let center = null, drawable = null;
@@ -236,6 +243,7 @@ export default class Drawer extends EventDispatcher {
         for (var i = 0; i < drawables.length; i++) {
             const obj = drawables[i];
             if (!obj.visible) continue;
+            obj.needsUpdate = true;
             obj.onSetVariables(this);
             obj.onDraw(gl);
         }

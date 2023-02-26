@@ -1,4 +1,6 @@
 import DrawEvent from "./lib/core/DrawEvent.js";
+import Vector2 from "./lib/core/Vector2.js";
+import VectorTransform from "./lib/core/VectorTransform.js";
 
 const el = (v) => document.getElementById(v);
 const createModel = (model, pos) => {
@@ -13,24 +15,26 @@ const updatePoint = (point, e) => { point.copyPos(e.position); }
 const curState = new Proxy({
     /** @type {DrawEvent} */
     selected: undefined,
+    lastPos: new Vector2(),
     dragged: false,
 }, {
+    /** @param {DrawEvent} val */
     set(obj, prop, val) {
         obj[prop] = val;
         if (prop === "selected") {
             if (val && !toolbar.selected) {
                 const model = val.drawable;
                 inspd.model.setState({
-                    pos: model.position,
+                    pos: {x: model.position.x, y: model.position.y},
                     rot: model.rotAngle,
-                    dilate: model.dilate,
+                    dilate: model.dilatation,
                 })
                 inspector.show("model");
                 if (val.point) {
-                    const point = val.point;
+                    const op = val.point.originalPoint;
                     inspd.point.setState({
-                        pos: {x: point.x, y: point.y},
-                        col: point.color.hex,
+                        pos: {x: op.x, y: op.y},
+                        col: val.point.color.hex,
                     });
                     inspector.show("point");
                 } else {
@@ -38,7 +42,7 @@ const curState = new Proxy({
                 }
                 hitboxHover.visible = false;
                 hitboxSelect.visible = true;
-                hitboxSelect.point.copyPos(val.point || val.center);
+                hitboxSelect.point.copyPos(val.position);
             } else {
                 inspector.hide("model");
                 inspector.hide("point");
@@ -80,18 +84,16 @@ const inspd = {
     }, rot: ["Rotation", "", (rot) => {
         curState.selected.drawable.rotAngle = rot;
     }], dilate: ["Dilatation", "", (val) => {
-        curState.selected.drawable.dilate = val;
+        curState.selected.drawable.dilatation = val;
     }]}),
 
     point: new DRWI.InspectorSection("point", "Point", {
         pos: {x: 0, y: 0}, col: "#000000"
     }, {pos: {
         x: ["X", "", (x) => {
-            curState.selected.point.x = x;
-            hitboxSelect.point.x = x;
+            curState.selected.point.originalPoint.x = x;
         }], y: ["Y", "", (y) => {
-            curState.selected.point.y = y
-            hitboxSelect.point.y = y;
+            curState.selected.point.originalPoint.y = y;
         }], _title: "Position"
     }, col: ["Color", "color", (v) => {
         curState.selected.point.color.setHex(v)
@@ -134,7 +136,7 @@ const toolitem = {
                 curState.selected = undefined; // finally end
                 toolbar.isUsing = false;
             } else
-                poly.points.push(poly.points[count-1].clone()); // keep adding
+                poly.add(poly.points[count-1].clone()); // keep adding
         },
         update(v, m) {updatePoint(m.points[m.points.length-1], v)}
     }),
@@ -149,6 +151,7 @@ const toolitem = {
 Object.keys(toolitem).forEach((v) => { toolbar.add(toolitem[v]); });
 
 const draw = new DRW.Drawer("#glcanvas");
+globalThis.draw = draw;
 draw.clearColor = new DRW.Color(1,1,1,1);
 
 const hitboxHover = new DRW.Hitbox(new DRW.Point(0, 0, DRW.Color.red()), 10);
@@ -169,14 +172,24 @@ draw.addEventListener("mousemove",
         if (curState.dragged) { // move selected item
             const p = curState.selected.point;
             if (!p) {
-                // TODO: position
                 const d = curState.selected.drawable;
-                d.position.add(e.delta);
+                const delta = {
+                    x: e.position.x - curState.lastPos.x,
+                    y: e.position.y - curState.lastPos.y
+                };
+                curState.lastPos.copy(e.position);
+                d.position.add(delta);
                 inspd.model.setState({pos: {x: d.position.x, y: d.position.y}});
+                hitboxSelect.point.add(delta);
             } else {
-                p.copyPos(e.position);
-                inspd.point.setState({pos: {x: p.x, y: p.y}});
-                hitboxSelect.point.copyPos(p);
+                const m = curState.selected.drawable;
+                const tfPos = VectorTransform.reverse(
+                    e.position, m.position, m.rotAngle, m.dilatation,
+                );
+                const op = p.originalPoint;
+                op.copyPos(tfPos);
+                inspd.point.setState({pos: {x: op.x, y: op.y}});
+                hitboxSelect.point.copyPos(e.position);
             }
         } else {
             if (e.point || e.center) {
@@ -201,6 +214,7 @@ draw.addEventListener("mousedown",
         }
     } else {
         if (e.drawable) {
+            curState.lastPos.copy(e.position);
             curState.selected = e;
             curState.dragged = true;
         } else {

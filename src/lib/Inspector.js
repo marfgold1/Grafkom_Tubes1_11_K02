@@ -130,16 +130,24 @@ class InspectorSection {
         </td>
         `).item(0);
         let inp = it.children;
+        const getValue = (e) => {
+            const value = e.target.value;
+            if ((stateOpt[1] || "number") === "number") {
+                return parseFloat(value) || 0;
+            } else {
+                return value;
+            }
+        }
         if (parent) {
             inp = inp.item(0).children.item(1);
             inp.addEventListener("input", (e) => {
-                this.setState({ [parent]: { [child]: e.target.value } });
+                this.setState({ [parent]: { [child]: getValue(e) } });
             })
             this.#stateCb[parent][child] = stateOpt[2];
         } else {
             inp = inp.item(0).children.item(1);
             inp.addEventListener("input", (e) => {
-                this.setState({ [child]: e.target.value });
+                this.setState({ [child]: getValue(e) });
             })
             this.#stateCb[child] = stateOpt[2];
         }

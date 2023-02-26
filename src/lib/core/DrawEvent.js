@@ -1,8 +1,7 @@
-import Drawer from "../Drawer.js"
-import Drawable from "./Drawable.js"
-import Point from "./Point.js"
-import { getClipPosition } from "./Utils.js"
-import Vector2 from "./Vector2.js"
+import Drawer from "../Drawer.js";
+import Drawable from "./Drawable.js";
+import { getClipPosition } from "./Utils.js";
+import VectorTransform from "./VectorTransform.js";
 
 export default class DrawEvent {
     /** @type {string} Draw event type. */
@@ -13,9 +12,9 @@ export default class DrawEvent {
     #position
     /** @type {Drawable} Drawable selected. */
     #drawable  // lazy load
-    /** @type {Point} Point selected. */
+    /** @type {VectorTransform?} Point selected. */
     #point  // lazy load
-    /** @type {Vector2} Point center. */
+    /** @type {VectorTransform?} Point center. */
     #center // lazy load
     /** @type {object} Other properties to add to the event. */
     #other
