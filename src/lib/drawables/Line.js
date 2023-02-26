@@ -47,6 +47,6 @@ export default class Line extends Drawable {
 
     static fromJSON(json) {
         const l = new Line(Point.fromJSON(json.p1), Point.fromJSON(json.p2));
-        super.fromJSON(l, json);
+        return super.fromJSON(l, json);
     }
 }

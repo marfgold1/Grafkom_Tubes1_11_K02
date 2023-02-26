@@ -81,4 +81,19 @@ export default class Square extends Drawable {
         }
         return null;
     }
+
+    toJSON() {
+        return {
+            ...super.toJSON(),
+            points: this.points.map(p => p.toJSON()),
+        }
+    }
+
+    static fromJSON(json) {
+        const r = new Square(Point.fromJSON(json.points[0]), Point.fromJSON(json.points[2]));
+        r.points.forEach((p, i) => {
+            p.color.copy(json.points[i].color)
+        });
+        return super.fromJSON(r, json);
+    }
 }

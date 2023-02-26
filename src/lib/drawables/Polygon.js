@@ -1,4 +1,5 @@
 import Drawable from "../core/Drawable.js";
+import Point from "../core/Point.js";
 
 export default class Polygon extends Drawable {
     constructor(...points) {
@@ -46,6 +47,6 @@ export default class Polygon extends Drawable {
 
     static fromJSON(json) {
         const p = new Polygon(...json.points.map(p => Point.fromJSON(p)));
-        super.fromJSON(p, json);
+        return super.fromJSON(p, json);
     }
 }

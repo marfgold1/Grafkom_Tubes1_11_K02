@@ -15,7 +15,9 @@ draw.clearColor = new Color(1,1,1,1);
 export const hitboxHover = new Hitbox(new Point(0, 0, Color.red()), 10);
 export const hitboxSelect = new Hitbox(new Point(0, 0, Color.green()), 20);
 hitboxHover.visible = false;
+hitboxHover.allowSave = false;
 hitboxSelect.visible = false;
+hitboxSelect.allowSave = false;
 draw.add(hitboxSelect);
 draw.add(hitboxHover);
 

@@ -47,17 +47,15 @@ export const toolitem = {
             const d = ev.drawable;
             const p = ev.point;
             if (p) {
-                console.log("yo");
                 p.color.setHex(inspd.bucket.state.col);
             }
             else if (d) {
-                console.log("sup");
                 d.points.map(p => p.color.setHex(inspd.bucket.state.col));
             }
         },
     }),
-    save: new ToolItem("save", {
-        onToggle() { insp.toggle("save"); },
+    file: new ToolItem("file", {
+        onToggle() { insp.toggle("import"); insp.toggle("export"); },
     }),
 }
 Object.keys(toolitem).forEach((v) => { tools.add(toolitem[v]); });

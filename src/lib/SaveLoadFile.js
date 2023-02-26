@@ -1,18 +1,36 @@
+import Drawer from "./Drawer.js";
+import { drawableFromJSON } from "./drawables/Drawables.js";
+
 /**
  * This class is used to save drawings to a file
  */
 export default class SaveLoadFile {
+    static download = document.createElement("a");
     /**
-     * @param {Object} canvas Requires a canvas
-     * @param {WebGLRenderingContext} gl Requires an instance of WebGL canvas
+     * @param {Drawer} drawer Requires a canvas
+     * @param {string} fileName Name of file to save
      */
-    static save(canvas, gl) {
-        let w = canvas.width;
-        let h = canvas.height;
-        let center_x = w / 2;
-        let center_y = h / 2;
-        let pixels = new Uint8Array(4);
-        gl.readPixels(center_x, center_y, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, pixels);
-        console.log(pixels.toString());
+    static save(drawer, fileName) {
+        const drawables = drawer.drawables.reduce((res, d) => {
+            if (d.allowSave) res.push(d.toJSON());
+            return res;
+        }, []);
+        const data = JSON.stringify(drawables);
+        const file = new Blob([data], { type: "application/json" });
+        const a = this.download;
+        a.href = URL.createObjectURL(file);
+        a.download = fileName + ".json";
+        a.click();
+    }
+
+    /**
+     * @param {Drawer} drawer Requires a canvas
+     */
+    static load(drawer, json) {
+        let data = JSON.parse(json);
+        data = data.map(j => {
+            return drawableFromJSON(j);
+        })
+        data.forEach((d) => drawer.add(d));
     }
 }

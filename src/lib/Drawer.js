@@ -55,6 +55,10 @@ export default class Drawer extends EventDispatcher {
     get gl() {
         return this.#gl;
     }
+    
+    get drawables() {
+        return this.#drawables;
+    }
 
     add(drawable) {
         if (drawable instanceof Drawable)
