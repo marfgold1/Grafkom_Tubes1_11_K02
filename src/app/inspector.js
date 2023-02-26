@@ -67,6 +67,38 @@ export const inspectorItems = {
         }]
     }),
 
+    animation: new InspectorSection("animation", "Animation", {
+        amplitude: 1,
+        frequency: 1,
+        scale_shift: 1,
+        apply_animation: false,
+    }, {
+        amplitude: [
+            "Amplitude", "", (val) => {
+                // delete this then
+                console.log("Amplitude: " + amplitude)
+            }
+        ],
+        frequency: [
+            "Frequency", "", (val) => {
+                // delete this then
+                console.log("Frequency (in times of PI): " + frequency)
+            }
+        ],
+        scale_shift: [
+            "Scale shift", "", (val) => {
+                // delete this then
+                console.log("Scale shift: " + scale_shift)
+            }
+        ],
+        apply_animation: [
+            "Apply Animation", "", (isApplied) => {
+                // delete this then
+                console.log("Applu Animation: " + apply_animation)
+            }
+        ]
+    }),
+
     point: new InspectorSection("point", "Point", {
         pos: {x: 0, y: 0},
         col: "#000000"
