@@ -1,6 +1,7 @@
 import DrawEvent from "./lib/core/DrawEvent.js";
 import Vector2 from "./lib/core/Vector2.js";
 import VectorTransform from "./lib/core/VectorTransform.js";
+import SaveLoadFile from "./lib/SaveLoadFile.js";
 
 const el = (v) => document.getElementById(v);
 const createModel = (model, pos) => {
@@ -134,7 +135,7 @@ const inspd = {
 
     save: new DRWI.InspectorSection("save", "Save", {
         name: "drawing", buttonSave: () => {
-
+            SaveLoadFile.save(draw, draw.gl);
         },
     }, {
         name: ["Name", "text"], buttonSave: ["Save", "submit", null]
