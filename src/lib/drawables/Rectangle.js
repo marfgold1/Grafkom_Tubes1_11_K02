@@ -17,8 +17,8 @@ export default class Rectangle extends Drawable {
      * @param {Point} p2 Bottom right point of the rectangle
      */
     constructor(p1, p2) {
-        const bl = new Point(p1.x, p2.y);
-        const tr = new Point(p2.x, p1.y);
+        const bl = new Point(p1.x, p2.y, p1.color.clone());
+        const tr = new Point(p2.x, p1.y, p1.color.clone());
         super([p1, tr, p2, bl], "rectangle");
         this.#tl = p1; p1.onChange = () => this.#update("tl");
         this.#tr = tr; tr.onChange = () => this.#update("tr");
@@ -42,6 +42,22 @@ export default class Rectangle extends Drawable {
         return this.#br;
     }
 
+    get width() {
+        return Math.abs(this.#br.x - this.#tl.x);
+    }
+
+    set width(val) {
+        this.#br.x = this.#tl.x + Math.abs(val);
+    }
+
+    get height() {
+        return Math.abs(this.#br.y - this.#tl.y);
+    }
+
+    set height(val) {
+        this.#br.y = this.#tl.y + Math.abs(val);
+    }
+
     #update(type) {
         if (type === "br" || type === "tl") {
             const h = this.#br.y - this.#tl.y;
@@ -55,6 +71,19 @@ export default class Rectangle extends Drawable {
             this.#tl.forceSet(this.#bl.x, this.#bl.y - h);
             this.#br.forceSet(this.#bl.x + w, this.#bl.y);
         }
+    }
+
+    getCenterIfIn(position, tolerance=5) {
+        const trCenter = this.trCenter;
+        const halfWidth = 0.5 * this.width;
+        const halfHeight = 0.5 * this.height;
+        if (position.x <= trCenter.x + halfWidth && 
+            position.x >= trCenter.x - halfWidth &&
+            position.y <= trCenter.y + halfHeight &&
+            position.y >= trCenter.y - halfHeight) {
+            return this.trCenter;
+        }
+        return null;
     }
 
     toJSON() {

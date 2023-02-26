@@ -13,8 +13,8 @@ export default class Square extends Drawable {
      * @param {Point} p2 Ending point of the square.
      */
     constructor(p1, p2) {
-        const bl = new Point(p1.x, p2.y, p1.color);
-        const tr = new Point(p2.x, p1.y, p1.color);
+        const bl = new Point(p1.x, p2.y, p1.color.clone());
+        const tr = new Point(p2.x, p1.y, p1.color.clone());
         super([p1, tr, p2, bl], "square");
         this.#tl = p1; p1.onChange = () => this.#update("tl");
         this.#tr = tr; tr.onChange = () => this.#update("tr");
@@ -27,11 +27,11 @@ export default class Square extends Drawable {
     }
 
     get side() {
-        return this.#br.x - this.#tl.x;
+        return Math.abs(this.#br.x - this.#tl.x);
     }
 
     set side(val) {
-        this.#br.set(this.#tl.x + val, this.#tl.y + val);
+        this.#br.set(this.#tl.x + Math.abs(val), this.#tl.y + Math.abs(val));
     }
 
     #update(type) {
@@ -67,5 +67,18 @@ export default class Square extends Drawable {
             this.#tl.forceSet(this.#tr.x - s * (dx>0?1:-1), this.#tr.y);
             this.#br.forceSet(this.#tr.x, this.#tr.y + s * (dy>0?1:-1));
         }
+    }
+
+    getCenterIfIn(position, tolerance=5) {
+        const trCenter = this.trCenter;
+        const halfSide = 0.5 * this.side;
+
+        if (position.x <= trCenter.x + halfSide && 
+            position.x >= trCenter.x - halfSide &&
+            position.y <= trCenter.y + halfSide &&
+            position.y >= trCenter.y - halfSide) {
+            return this.trCenter;
+        }
+        return null;
     }
 }

@@ -26,10 +26,29 @@ const curState = new Proxy({
                 const model = val.drawable;
                 inspd.model.setState({
                     pos: {x: model.position.x, y: model.position.y},
-                    rot: model.rotAngle,
                     dilate: model.dilatation,
                 })
                 inspector.show("model");
+
+                if (!val.point && val.drawable.type === "square") {
+                    inspd.drawSquare.setState({
+                        side: val.drawable.side
+                    });
+                    inspector.show("drawSquare");
+                } else {
+                    inspector.hide("drawSquare");
+                }
+
+                if (!val.point && val.drawable.type === "rectangle") {
+                    inspd.drawRectangle.setState({
+                        width: val.drawable.width,
+                        height: val.drawable.height
+                    });
+                    inspector.show("drawRectangle");
+                } else {
+                    inspector.hide("drawRectangle");
+                }
+
                 if (val.point) {
                     const op = val.point.originalPoint;
                     inspd.point.setState({
@@ -46,6 +65,9 @@ const curState = new Proxy({
             } else {
                 inspector.hide("model");
                 inspector.hide("point");
+                inspector.hide("drawSquare");
+                inspector.hide("drawRectangle");
+
                 hitboxSelect.visible = false;
             }
         }
@@ -61,9 +83,22 @@ const inspd = {
         col: "#000000",
     }, {col: ["Color", "color"]}),
 
-    drawSquare: new DRWI.InspectorSection("drawSquare", "Draw Square", {
+    drawSquare: new DRWI.InspectorSection("drawSquare", "Square", {
         side: 0
-    }, {side: ["Side length"]}),
+    }, {side: ["Side length", "", (val) => {
+        curState.selected.drawable.side = val;
+    }]}),
+
+    drawRectangle: new DRWI.InspectorSection("drawRectangle", "Rectangle", {
+        width: 0, height: 0
+    }, {
+        width: ["Width", "", (val) => {
+            curState.selected.drawable.width = val;
+        }],
+        height: ["Height", "", (val) => {
+            curState.selected.drawable.height = val;
+        }],
+    }),
 
     drawPoly: new DRWI.InspectorSection("drawPoly", "Draw Polygon", {
         maxVertex: 3, count: 0
@@ -118,10 +153,10 @@ const toolitem = {
         end, update(v, m) {updatePoint(m.p2, v)}
     }),
     square: new DRWT.ToolItem("square", { 
-        onToggle(v) { onToggle(v); insp.toggle("drawSquare") },
+        onToggle,
         begin(v) { return createModel("Square", v.position); },
         end, 
-        update(v, m) { updatePoint(m.br, v); inspd.drawSquare.setState({side: m.side})}
+        update(v, m) {updatePoint(m.br, v)}
     }),
     rect: new DRWT.ToolItem("rect", { onToggle,
         begin(v) { return createModel("Rectangle", v.position); },
@@ -150,7 +185,16 @@ const toolitem = {
         onToggle(v) { insp.toggle("bucket"); },
         begin(ev) {
             const p = ev.point;
-            if (p) p.color.setHex(inspd.bucket.state.col);
+            ev.center;          // magic
+            const d = ev.drawable;
+            if (p) {
+                console.log("yo");
+                p.color.setHex(inspd.bucket.state.col);
+            }
+            else if (d) {
+                console.log("sup");
+                d.points.map(p => p.color.setHex(inspd.bucket.state.col));
+            }
         },
     }),
     save: new DRWT.ToolItem("save", {

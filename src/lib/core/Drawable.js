@@ -75,7 +75,7 @@ export default class Drawable {
         }, 0);
         avg_x /= len;
         avg_y /= len;
-        return new Vector2(avg_x + this.position.x, avg_y + this.position.y);
+        return new Vector2(avg_x, avg_y);
     }
 
     get trCenter() {
