@@ -10,6 +10,7 @@ export const curState = new Proxy({
     selected: undefined,
     lastPos: new Vector2(),
     dragged: false,
+    isAnimate: false,
 }, {
     /** @param {DrawEvent} val */
     set(obj, prop, val) {

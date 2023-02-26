@@ -5,6 +5,16 @@ import { curState } from "./state.js";
 
 export const inspector = new Inspector(document.getElementById("insp"));
 export const inspectorItems = {
+    animation: new InspectorSection("animation", "Animation", {
+        speed: 1,
+        buttonToggle: () => {
+            curState.isAnimate = !curState.isAnimate;
+        }
+    }, {
+        speed: ["Speed", ""],
+        buttonToggle: ["Toggle Animation", "submit"]
+    }),
+
     drawOpt: new InspectorSection("drawOpt", "Drawing Options", {
         col: "#000000",
     }, {
@@ -157,9 +167,10 @@ export const inspectorItems = {
     }, {
         idx: ["Index", ""],
         buttonDelete: ["Delete Point", "submit"]
-    })
+    }),
 }
 Object.keys(inspectorItems).forEach((v) => { inspector.register(inspectorItems[v]); });
+inspector.show("animation");
 
 globalThis.app = {
     ...globalThis.app,

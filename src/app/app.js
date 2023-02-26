@@ -92,8 +92,15 @@ draw.addEventListener("mouseup", (e) => {
     }
 });
 
+let time = 0;
 function render() {
     draw.render();
+    if (curState.isAnimate) {
+        time += 0.01 * inspectorItems.animation.state.speed;
+        draw.drawables.forEach((d) => {
+            d.dilatation = 0.2 * Math.cos(time) + 1;
+        });
+    }
     requestAnimationFrame(render);
 }
 requestAnimationFrame(render);

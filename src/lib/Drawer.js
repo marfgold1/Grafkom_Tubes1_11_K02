@@ -62,7 +62,7 @@ export default class Drawer extends EventDispatcher {
 
     add(drawable) {
         if (drawable instanceof Drawable)
-            this.#drawables.unshift(drawable);
+            this.#drawables.push(drawable);
         else
             console.error("Invalid drawable", drawable);
     }
