@@ -123,19 +123,17 @@ export class InspectorSection {
     }
 
     #createStateInputEl(id, stateOpt, value, parent, child) {
-        if (stateOpt?.[1] === "submit") {
-            const buttonVal = value;
+        const buttonCb = value;
+        if (stateOpt?.[1] === "submit")
             value = stateOpt[0];
-        }
         const it = createEl(`
         <td colspan="${parent?1:4}">
             <div class="insp-item-sect">
-                <label for="${id}">${stateOpt?.[0]}</label>
+                ${stateOpt?.[1] === "submit" ? "":`<label for="${id}">${stateOpt?.[0]}</label>`}
                 <input type="${stateOpt?.[1] || "number"}" id="${id}" value="${value}" />
             </div>
         </td>
         `).item(0);
-        let inp = it.children;
         const getValue = (e) => {
             const value = e.target.value;
             if ((stateOpt[1] || "number") === "number") {
@@ -144,14 +142,17 @@ export class InspectorSection {
                 return value;
             }
         }
-        if (parent) {
-            inp = inp.item(0).children.item(1);
+        const inp = it.children.item(0).children.item(1);
+        if (stateOpt[1] === "submit") {
+            it.children.item(0).children.item(0).addEventListener("click", (e) => {
+                buttonCb?.(e);
+            })
+        } else if (parent) {
             inp.addEventListener("input", (e) => {
                 this.setState({ [parent]: { [child]: getValue(e) } });
             })
             this.#stateCb[parent][child] = stateOpt?.[2];
         } else {
-            inp = inp.item(0).children.item(1);
             inp.addEventListener("input", (e) => {
                 this.setState({ [child]: getValue(e) });
             })
