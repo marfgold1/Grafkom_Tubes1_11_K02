@@ -139,7 +139,7 @@ const inspd = {
         },
     }, {
         name: ["Name", "text"], buttonSave: ["Save", "submit", null]
-    })
+    }, true)
 }
 Object.keys(inspd).forEach((v) => { insp.register(inspd[v]); });
 

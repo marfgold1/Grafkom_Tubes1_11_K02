@@ -20,26 +20,42 @@ class InspectorSection {
     /** @type {InspectorStateCb} Inspector state callback */
     #stateCb
 
-    constructor(name, title, state, stateOptions) {
+    constructor(name, title, state, stateOptions, isForm=false) {
         this.#name = name;
         this.#state = state;
         this.#stateCb = {};
         this.#stateEl = {};
         this.#itemsEl = document.createElement("tbody");
-        this.#bodyEl = createEl(`
-        <div class="insp-sect" id="insp-${name}">
-            <table class="insp-items">
-                <thead>
-                    <tr>
-                        <th colspan="4">${title}</th>
-                    </tr>
-                </thead>
-            </table>
-        </div>
-        `).item(0);
+        if (isForm) {
+            this.#bodyEl = createEl(`
+            <form class="insp-sect-form" id="insp-${name}">
+                <table class="insp-items">
+                    <thead>
+                        <tr>
+                            <th colspan="4">${title}</th>
+                        </tr>
+                    </thead>
+                </table>
+            </form>
+            `).item(0);
+        } else {
+            this.#bodyEl = createEl(`
+            <div class="insp-sect" id="insp-${name}">
+                <table class="insp-items">
+                    <thead>
+                        <tr>
+                            <th colspan="4">${title}</th>
+                        </tr>
+                    </thead>
+                </table>
+            </div>
+            `).item(0);
+        }
         this.#bodyEl.children.item(0).appendChild(this.#itemsEl);
         this.#createStateEl(state, stateOptions);
         this.toggle(false);
+        // Prevent refresh on submit form
+        // this.#bodyEl.submit((e) => e.preventDefault());
     }
 
     get bodyEl() {
